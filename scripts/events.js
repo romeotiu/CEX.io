@@ -10,24 +10,28 @@ async function getEvents() {
   const service = accounts[1].address;
   console.log("Sender address: ", sender);
 
-  const network = hre.network.name;
-  const envConfig = dotenv.parse(fs.readFileSync(`.env-${network}`));
-  for (const k in envConfig) {
-    process.env[k] = envConfig[k];
-  }
-
-  console.log("Genereting...");
-
-  const amount = toWei("200");
-  const message = ethers.utils.solidityKeccak256(
-    ["uint256", "uint256", "address", "string"],
-    [nonce, amount, sender, SYMBOL]
+  const provider = new ethers.providers.JsonRpcProvider(
+    "http://127.0.0.1:8545"
   );
 
-  const signature = await web3.eth.sign(message, service.address);
-  console.log("Signature:");
-  const sig = ethers.utils.splitSignature(signature);
-  console.log("Split Signature:");
+  const abi = ["event RewardPaid(address indexed user, uint256 amount)"];
+  const contract = new ethers.Contract(rewardContract, abi, provider);
+
+  const filter = contract.filters.RewardPaid();
+
+  // const rewards = filter.map((filter) => ({
+  //   user: filter.args.user,
+  //   amount: filter.args.amount.toString(),
+  //   nonce: filter.args.nonce.toString(),
+  //   transactionHash: filter.transactionHash,
+  // }));
+
+  // console.log(filter);
+  // console.log(rewards);
+  console.log("alice", alice.address);
+  console.log("service", service.address);
+
+  // fs.writeFileSync("rewards.json", JSON.stringify(rewards, null, 2));;
 }
 
 getEvents()
