@@ -57,7 +57,6 @@ contract RewardContract is AccessControl, Pausable {
 
     /**
      * @dev Execute claim
-     * @param nonce Number of transaction
      * @param recipient Recipient address
      * @param amount Amount of tokens
      * @param v V of signature
@@ -67,37 +66,6 @@ contract RewardContract is AccessControl, Pausable {
      */
 
     function claimReward(
-        uint256 nonce,
-        uint256 amount,
-        address recipient,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        string memory symbol
-    ) external whenNotPaused {
-        require(
-            tokens[symbol].enabled,
-            "This token not registered or disabled"
-        );
-
-        bytes32 message = keccak256(
-            abi.encodePacked(nonce, amount, recipient, symbol)
-        );
-
-        require(
-            hasRole(
-                SERVICE_ROLE,
-                message.toEthSignedMessageHash().recover(v, r, s)
-            ),
-            "Service address is invalid or signature is faked"
-        );
-
-        rewardToken.safeTransfer(recipient, amount);
-        emit RewardPaid(recipient, amount);
-    }
-
-    /// NOTE: to review
-    function claimReward2(
         uint256 amount,
         address recipient,
         uint8 v,
